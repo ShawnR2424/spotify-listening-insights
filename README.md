@@ -33,6 +33,7 @@ Databricks Gold Layer
        │
        ▼
 Analytics-ready datasets
+```
 
 ## Data Model
 
@@ -88,6 +89,7 @@ fct_listening_events
          │ aggregated by date
          ▼
 mart_daily_listening
+```
 
 ## Key Engineering Decisions
 
@@ -178,6 +180,11 @@ Directly joining artists into the listening-event fact table could create fan-ou
 2 artists
       ↓
 2 resulting rows
+```
+
+Counting plays or summing listening minutes on that joined result would double-count every multi-artist track.
+
+To avoid this, `fct_listening_events` stays at one row per listening event, and the track-to-artist relationship lives in `bridge_track_artists`. Artist-level metrics, such as `unique_artists` in `mart_daily_listening`, are calculated in a separate aggregation and joined back by date, so event-level metrics are never inflated.
 
 ## Analytical Outputs
 
@@ -232,6 +239,7 @@ select
     repeat_play_rate
 from spotify_analytics.gold.mart_daily_listening
 order by played_date desc;
+```
 
 ## Setup and Reproducibility
 
@@ -246,13 +254,13 @@ To run the project, you need:
 * Databricks CLI
 * Access to a Databricks SQL warehouse
 
-The repository does not contain credentials, OAuth tokens, raw personal Spotify listening data, or local environment configuration.
+The current version of the repository does not contain credentials, OAuth tokens, raw personal Spotify listening data, or local environment configuration.
 
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/ShawnR2442/spotify-listening-analytics.git
-cd spotify-listening-analytics
+git clone https://github.com/ShawnR2424/spotify-listening-insights.git
+cd spotify-listening-insights
 ```
 
 ### 2. Create the Python Environment
@@ -311,6 +319,11 @@ The Databricks workflow is defined in:
 databricks.yml
 resources/spotify_analytics_job.yml
 ```
+
+Before validating, update these workspace-specific values to match your environment. They currently point to the original author's workspace:
+
+* `workspace.host` in `databricks.yml`
+* `warehouse_id` for the `dbt_gold` task in `resources/spotify_analytics_job.yml`
 
 Validate the configuration before deployment:
 
@@ -426,6 +439,12 @@ Raw Spotify responses progress through Bronze, Silver, and Gold schemas within t
 
 ![Databricks Bronze Silver and Gold data layers](docs/images/databricks_data_layers.png)
 
+### dbt Lineage
+
+dbt manages the analytical Gold layer and captures dependencies between Silver sources, dimensional models, fact tables, bridge tables, and analytical marts.
+
+![dbt model lineage](docs/images/dbt_lineage.png)
+
 ## Project Status
 
 **Status:** Functional portfolio project
@@ -487,9 +506,3 @@ Potential extensions include:
 * Additional behavioral marts for artist affinity, music discovery, and listening sessions
 * Integration of additional public music datasets for richer track metadata
 * Deployment metadata linking pipeline runs to Git commit versions
-
-### dbt Lineage
-
-dbt manages the analytical Gold layer and captures dependencies between Silver sources, dimensional models, fact tables, bridge tables, and analytical marts.
-
-![dbt model lineage](docs/images/dbt_lineage.png)
