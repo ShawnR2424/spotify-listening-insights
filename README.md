@@ -419,6 +419,9 @@ dbt/target/
 dbt/logs/
 dbt/dbt_packages/
 .DS_Store
+__pycache__/
+.pytest_cache/
+.databricks/
 ```
 
 This keeps credentials, authentication artifacts, generated files, local environments, and personal Spotify listening data out of the public repository.

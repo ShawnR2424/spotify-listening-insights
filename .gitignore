@@ -3,6 +3,9 @@
 .spotify_cache
 data/raw/
 .DS_Store
+__pycache__/
+.pytest_cache/
+.databricks/
 dbt/target/
 dbt/logs/
 dbt/dbt_packages/
