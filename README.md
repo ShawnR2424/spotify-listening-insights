@@ -299,10 +299,16 @@ The ingestion process requires permission to read recently played Spotify activi
 
 ### 5. Authenticate the Databricks CLI
 
-Authenticate to the target Databricks workspace:
+Authenticate to the target Databricks workspace and save the login as a named profile:
 
 ```bash
-databricks auth login --host https://<databricks-workspace-host>
+databricks auth login --host https://<databricks-workspace-host> --profile spotify-analytics
+```
+
+Use that profile for the rest of the session:
+
+```bash
+export DATABRICKS_CONFIG_PROFILE=spotify-analytics
 ```
 
 Verify the authenticated identity:
@@ -311,7 +317,9 @@ Verify the authenticated identity:
 databricks current-user me
 ```
 
-### 6. Validate the Databricks Bundle
+The bundle does not hardcode a workspace host. Bundle commands deploy to whichever workspace the active profile points to.
+
+### 6. Configure and Validate the Databricks Bundle
 
 The Databricks workflow is defined in:
 
@@ -320,10 +328,23 @@ databricks.yml
 resources/spotify_analytics_job.yml
 ```
 
-Before validating, update these workspace-specific values to match your environment. They currently point to the original author's workspace:
+The bundle has one required variable, `warehouse_id`: the ID of the SQL warehouse that runs the dbt task. It is the last segment of the warehouse HTTP path (`/sql/1.0/warehouses/<sql-warehouse-id>`), the same warehouse used for `DATABRICKS_HTTP_PATH` above.
 
-* `workspace.host` in `databricks.yml`
-* `warehouse_id` for the `dbt_gold` task in `resources/spotify_analytics_job.yml`
+Set it for your shell session:
+
+```bash
+export BUNDLE_VAR_warehouse_id=<sql-warehouse-id>
+```
+
+Alternatively, pass `--var="warehouse_id=<sql-warehouse-id>"` to each bundle command, or save it once in the Git-ignored file `.databricks/bundle/dev/variable-overrides.json`:
+
+```json
+{
+  "warehouse_id": "<sql-warehouse-id>"
+}
+```
+
+Bundle commands read these settings every time they run, so keep them set for the validate, deploy, and run steps below.
 
 Validate the configuration before deployment:
 

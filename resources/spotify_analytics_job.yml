@@ -35,7 +35,7 @@ resources:
               - dbt build --select gold
             source: WORKSPACE
             schema: gold
-            warehouse_id: 84b2c5c9e977e9d1
+            warehouse_id: ${var.warehouse_id}
             catalog: spotify_analytics
           environment_key: dbt-default
 

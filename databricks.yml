@@ -4,10 +4,20 @@ bundle:
 include:
   - resources/*.yml
 
+variables:
+  warehouse_id:
+    description: >
+      ID of the Databricks SQL warehouse that runs the dbt_gold task.
+      This is the last segment of the warehouse HTTP path
+      (/sql/1.0/warehouses/<warehouse_id>). Provide it with the
+      BUNDLE_VAR_warehouse_id environment variable, the --var option, or
+      .databricks/bundle/<target>/variable-overrides.json.
+
 targets:
   dev:
     mode: development
     default: true
 
-    workspace:
-      host: https://dbc-2c0ed2c9-6f88.cloud.databricks.com/
+    # The workspace host is intentionally not set here. Authenticate with
+    # a Databricks CLI profile (DATABRICKS_CONFIG_PROFILE or --profile) or
+    # set DATABRICKS_HOST. See "Setup and Reproducibility" in the README.
